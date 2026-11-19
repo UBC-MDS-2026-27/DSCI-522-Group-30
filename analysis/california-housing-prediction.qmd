@@ -1,0 +1,56 @@
+---
+title: "Predicting California Housing Prices"
+author: "Group 30"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+jupyter: python3
+---
+
+# Link to full instructions from assignment page
+<!-- https://ubc-mds.github.io/DSCI_522_dsci-workflows_students/assignments/milestone1.html#write-the-data-analysis -->
+
+# Summary
+
+<!-- Summarize the research question, findings, and limitations. -->
+
+# Introduction
+
+<!-- Introduce the problem, explain its importance, state the research question,
+describe the dataset, and define the response variable. -->
+
+# Methods
+
+## Data
+
+<!-- Describe the dataset, its source, observations, and variables. -->
+
+## Data Cleaning and Preprocessing
+
+<!-- Explain how the data was downloaded, cleaned, and prepared. -->
+
+## Exploratory Data Analysis
+
+<!-- Summarize and visualize the training data. -->
+
+## Model Development
+
+<!-- Describe the predictive model and how it was trained. -->
+
+## Model Evaluation
+
+<!-- Explain the evaluation metric and testing procedure. -->
+
+# Results
+
+<!-- Present the model results, figures, and tables. -->
+
+# Discussion
+
+<!-- Interpret findings, discuss limitations, implications, and future work. -->
+
+# References
+
+<!-- Include at least four credible references cited throughout the report. -->
