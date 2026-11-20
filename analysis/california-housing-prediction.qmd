@@ -63,17 +63,8 @@ housing.isnull().sum()
 
 This function allowed us to identify the missing observations. Thanks to this function, we found 207 missing values in `total_bedrooms`.
 
-### 4. Replace missing values
 
-```{python}
-housing["total_bedrooms"] = housing["total_bedrooms"].fillna(
-    housing["total_bedrooms"].median()
-)
-```
-
-To handle these missing values, we chose to replace the 207 missing bedroom values with the median value of 435 to maintain all observations and simultaneously reduce sensitivity to extreme values.
-
-### 5. Check duplicate observations
+### 4. Check duplicate observations
 
 ```{python}
 housing.duplicated().sum()
@@ -81,7 +72,7 @@ housing.duplicated().sum()
 
 To ensure there were no duplicate values or repeated observations that might affect our analysis, we ran the above function and no duplicates were found.
 
-### 6. Convert categorical variable
+### 5. Convert categorical variable
 
 ```{python}
 housing["ocean_proximity"] = housing["ocean_proximity"].astype("category")
@@ -89,18 +80,18 @@ housing["ocean_proximity"] = housing["ocean_proximity"].astype("category")
 
 We then converted ocean proximity into a categorical variable because it represents location groups instead of continuous numerical values.
 
-### 7. Select relevant variables
+### 6. Select relevant variables
 
 ```{python}
 housing_final = housing[
     ["median_house_value", "median_income",
-     "total_bedrooms", "ocean_proximity"]
+     "total_bedrooms", "households", "ocean_proximity"]
 ].copy()
 ```
 
-This code allowed us to reduce the dataset from 10 to 4 columns removing unnecessary variables that were not relevant to our research question.
+This code allowed us to reduce the dataset from 10 to 5 columns removing unnecessary variables that were not relevant to our research question.
 
-### 8. Validate cleaned dataset
+### 7. Validate cleaned dataset
 
 ```{python}
 housing_final.isnull().sum()
@@ -110,7 +101,7 @@ housing_final.shape
 
 A final check to verify that no missing values or duplicate rows remained and to ensure that the final dataset dimensions are what we expected.
 
-### 9. Export cleaned dataset
+### 8. Export cleaned dataset
 
 ```{python}
 Path("../data/processed").mkdir(parents=True, exist_ok=True)
@@ -121,15 +112,15 @@ housing_final.to_csv(
 )
 ```
 
-We then saved the cleaned dataset in the processed data folder so it can be reused for exploratory data analysis and modelling without modifying the original raw data.
+We then saved the cleaned dataset in the processed data folder so it can be reused for exploratory data analysis and modelling without modifying the original raw data. The 207 missing total_bedrooms values are intentionally retained for imputation after the train/test split.
 
 ## Final results
 
 | Measure        | Before | After  |
 |----------------|--------|--------|
 | Rows           | 20,640 | 20,640 |
-| Columns        | 10     | 4      |
-| Missing values | 207    | 0      |
+| Columns        | 10     | 5      |
+| Missing values | 207    | 207    |
 | Duplicate rows | 0      | 0      |
 
 Final variables retained:
@@ -137,6 +128,7 @@ Final variables retained:
 - `median_house_value` – Outcome
 - `median_income` – Explanatory
 - `total_bedrooms` – Explanatory
+- `households` – Explanatory
 - `ocean_proximity` – Explanatory
 
 ## Exploratory Data Analysis
