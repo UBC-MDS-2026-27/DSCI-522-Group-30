@@ -192,7 +192,7 @@ Figure 1 shows that median house value is right-skewed, with a noticeable spike 
 
 ```{python}
 #| label: fig-income-value
-#| fig-cap: "Figure 1: Median house value against median income for districts in the training set."
+#| fig-cap: "Figure 2: Median house value against median income for districts in the training set."
 fig, ax = plt.subplots(figsize=(7, 5))
 ax.scatter(housing_train["median_income"], housing_train["median_house_value"], alpha=0.2, s=8)
 ax.set_xlabel("Median income (tens of thousands of USD)")
@@ -204,7 +204,7 @@ Figure 2 shows a positive relationship between median income and median house va
 
 ```{python}
 #| label: fig-bedrooms-value
-#| fig-cap: "Figure 2: Median house value against total bedrooms for districts in the training set."
+#| fig-cap: "Figure 3: Median house value against total bedrooms for districts in the training set."
 fig, ax = plt.subplots(figsize=(7, 5))
 ax.scatter(housing_train["total_bedrooms"], housing_train["median_house_value"], alpha=0.2, s=8)
 ax.set_xlabel("Total bedrooms in district")
@@ -216,7 +216,7 @@ Figure 3 shows little relationship between total bedrooms and median house value
 
 ```{python}
 #| label: fig-proximity-value
-#| fig-cap: "Figure 3: Distribution of median house value by ocean proximity in the training set."
+#| fig-cap: "Figure 4: Distribution of median house value by ocean proximity in the training set."
 order = housing_train.groupby("ocean_proximity")["median_house_value"].median().sort_values().index
 fig, ax = plt.subplots(figsize=(7, 5))
 sns.boxplot(data=housing_train, x="ocean_proximity", y="median_house_value", order=order, ax=ax)
@@ -225,7 +225,7 @@ ax.set_ylabel("Median house value (USD)")
 plt.show()
 ```
 
-Figure 4 shows that median house value differs across ocean proximity categories, with inland districts having noticeably lower values than districts closer to the coast.
+Figure 4 shows that inland districts have much lower median house values than districts near the coast, while the three coastal categories are broadly similar. The island category appears highest, but it contains very few districts, so this comparison is unreliable.
 
 **Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while total bedrooms shows little relationship with it. The cap on house values at about \$500,000 is a limitation we will keep in mind when evaluating our model.
 
