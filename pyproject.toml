@@ -16,10 +16,3 @@ dependencies = [
     "scikit-learn>=1.9.1",
     "seaborn>=0.13.2",
 ]
-
-[project.scripts]
-dsci-522-group-30 = "dsci_522_group_30:main"
-
-[build-system]
-requires = ["uv_build>=0.12.7,<0.13.0"]
-build-backend = "uv_build"
