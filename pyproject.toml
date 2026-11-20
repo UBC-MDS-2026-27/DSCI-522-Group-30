@@ -1,7 +1,7 @@
 [project]
 name = "dsci-522-group-30"
 version = "0.1.0"
-description = "Add your description here"
+description = "California housing price prediction and data analysis"
 readme = "README.md"
 authors = [
     { name = "Delaney Woods", email = "delaneypaigewoods@gmail.com" }
