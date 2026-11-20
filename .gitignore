@@ -27,3 +27,6 @@ venv/
 # Temporary files
 *.tmp
 *.log
+
+# Raw housing dataset (downloaded automatically)
+data/raw/housing.csv

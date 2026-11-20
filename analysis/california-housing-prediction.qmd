@@ -28,7 +28,13 @@ describe the dataset, and define the response variable. -->
 
 ## Data
 
-<!-- Describe the dataset, its source, observations, and variables. -->
+Data Source
+
+The California Housing dataset was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables.
+
+According to the Kaggle dataset description, the data was in Aurélien Géron's book Hands-On Machine Learning with Scikit-Learn and TensorFlow. Géron's version is a modified version of the original California Housing dataset.
+
+For reproducibility, the dataset is downloaded programmatically from Géron's Hands-On Machine Learning GitHub repository and saved to data/raw/housing.csv when the analysis is rendered.
 
 ## Data Cleaning and Preprocessing
 
@@ -37,9 +43,19 @@ describe the dataset, and define the response variable. -->
 ```{python}
 import pandas as pd
 import numpy as np
+import urllib.request
 from pathlib import Path
 
-housing = pd.read_csv("../data/raw/housing.csv")
+housing_url = "https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv"
+
+raw_dir = Path("../data/raw")
+raw_dir.mkdir(parents=True, exist_ok=True)
+
+housing_path = raw_dir / "housing.csv"
+
+urllib.request.urlretrieve(housing_url, housing_path)
+
+housing = pd.read_csv(housing_path)
 ```
 
 We imported pandas to assist with data manipulation, NumPy for the numerical operations, and loaded the raw housing dataset into Python after downloading locally.
@@ -99,7 +115,7 @@ housing_final.duplicated().sum()
 housing_final.shape
 ```
 
-A final check to verify that no missing values or duplicate rows remained and to ensure that the final dataset dimensions are what we expected.
+A final check to verify the missing values amount is 207 or duplicate rows remained and to ensure that the final dataset dimensions are what we expected.
 
 ### 8. Export cleaned dataset
 
