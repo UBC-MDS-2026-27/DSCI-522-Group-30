@@ -140,6 +140,7 @@ Final variables retained:
 - `ocean_proximity` – Explanatory
 
 ## Splitting the data
+
 ```{python}
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -160,7 +161,73 @@ We split the cleaned data into a training set (80%) and a test set (20%) before 
 
 ## Exploratory Data Analysis
 
-<!-- Summarize and visualize the training data. -->
+We explored only the training data, so that the test set does not influence any of our decisions.
+
+```{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+housing_train = pd.read_csv("../data/processed/housing_train.csv")
+
+housing_train.describe().round(2)
+```
+
+```{python}
+housing_train["ocean_proximity"].value_counts()
+```
+
+The table above summarizes the numeric variables in the training set, and the counts show how many districts fall into each ocean proximity category.
+
+```{python}
+#| label: fig-value-dist
+#| fig-cap: "Figure 1: Distribution of median house value in the training set."
+fig, ax = plt.subplots(figsize=(7, 5))
+ax.hist(housing_train["median_house_value"], bins=50)
+ax.set_xlabel("Median house value (USD)")
+ax.set_ylabel("Number of districts")
+plt.show()
+```
+
+Figure 1 shows that median house value is right-skewed, with a noticeable spike at the highest value, around \$500,000.
+
+```{python}
+#| label: fig-income-value
+#| fig-cap: "Figure 1: Median house value against median income for districts in the training set."
+fig, ax = plt.subplots(figsize=(7, 5))
+ax.scatter(housing_train["median_income"], housing_train["median_house_value"], alpha=0.2, s=8)
+ax.set_xlabel("Median income (tens of thousands of USD)")
+ax.set_ylabel("Median house value (USD)")
+plt.show()
+```
+
+Figure 2 shows a positive relationship between median income and median house value: districts with higher incomes tend to have more expensive homes. The horizontal line of points at about \$500,000 reflects a cap in the dataset: all districts with higher values are recorded at this maximum, so our model cannot learn to predict values above it.
+
+```{python}
+#| label: fig-bedrooms-value
+#| fig-cap: "Figure 2: Median house value against total bedrooms for districts in the training set."
+fig, ax = plt.subplots(figsize=(7, 5))
+ax.scatter(housing_train["total_bedrooms"], housing_train["median_house_value"], alpha=0.2, s=8)
+ax.set_xlabel("Total bedrooms in district")
+ax.set_ylabel("Median house value (USD)")
+plt.show()
+```
+
+Figure 3 shows little relationship between total bedrooms and median house value. Because this variable counts all bedrooms in a district, it mostly reflects district size rather than the size of individual homes.
+
+```{python}
+#| label: fig-proximity-value
+#| fig-cap: "Figure 3: Distribution of median house value by ocean proximity in the training set."
+order = housing_train.groupby("ocean_proximity")["median_house_value"].median().sort_values().index
+fig, ax = plt.subplots(figsize=(7, 5))
+sns.boxplot(data=housing_train, x="ocean_proximity", y="median_house_value", order=order, ax=ax)
+ax.set_xlabel("Ocean proximity")
+ax.set_ylabel("Median house value (USD)")
+plt.show()
+```
+
+Figure 4 shows that median house value differs across ocean proximity categories, with inland districts having noticeably lower values than districts closer to the coast.
+
+**Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while total bedrooms shows little relationship with it. The cap on house values at about \$500,000 is a limitation we will keep in mind when evaluating our model.
 
 ## Model Development
 
