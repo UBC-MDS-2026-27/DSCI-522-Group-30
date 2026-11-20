@@ -11,7 +11,7 @@ jupyter: python3
 
 # Link to full instructions from assignment page
 
-https://ubc-mds.github.io/DSCI_522_dsci-workflows_students/assignments/milestone1.html#write-the-data-analysis
+<!-- https://ubc-mds.github.io/DSCI_522_dsci-workflows_students/assignments/milestone1.html#write-the-data-analysis -->
 
 # Summary
 
@@ -28,7 +28,7 @@ describe the dataset, and define the response variable. -->
 
 ## Data
 
-Describe the dataset, its source, observations, and variables.
+<!-- Describe the dataset, its source, observations, and variables. -->
 
 ## Data Cleaning and Preprocessing
 
@@ -113,7 +113,7 @@ A final check to verify that no missing values or duplicate rows remained and to
 ### 9. Export cleaned dataset
 
 ```{python}
-Path("data/processed").mkdir(parents=True, exist_ok=True)
+Path("../data/processed").mkdir(parents=True, exist_ok=True)
 
 housing_final.to_csv(
     "../data/processed/housing_final.csv",
@@ -142,8 +142,6 @@ Final variables retained:
 ## Exploratory Data Analysis
 
 <!-- Summarize and visualize the training data. -->
-
-\`\`\`\`
 
 ## Model Development
 
