@@ -30,7 +30,7 @@ describe the dataset, and define the response variable. -->
 
 Data Source
 
-The California Housing dataset was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables.
+The [California Housing dataset](https://www.kaggle.com/datasets/camnugent/california-housing-prices/data) was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables.
 
 According to the Kaggle dataset description, the data was in Aurélien Géron's book Hands-On Machine Learning with Scikit-Learn and TensorFlow. Géron's version is a modified version of the original California Housing dataset.
 
@@ -320,7 +320,7 @@ print("Training predictors:", X_train.shape[1])
 print("First five baseline predictions:", dummy_predictions[:5])
 ```
 
-We used median income, bedrooms per household, and ocean proximity as predictors of median house value. The numeric predictors were processed with median imputation and standardization, and ocean proximity was converted into one-hot encoded columns. These steps were placed inside a pipeline and fitted using the training data only. We also fitted a mean DummyRegressor as a simple baseline for later model comparison.
+We predicted `median_house_value` using `median_income`, `bedrooms_per_household`, and `ocean_proximity`. The numeric variables were processed with median imputation for missing values and standardization. The categorical `ocean_proximity` variable was converted into one-hot encoded indicators using scikit-learn's [ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html). All pre-processing steps were placed inside a pipeline so that they were fitted using training data only and were repeated separately within each cross-validation fold. We also fitted a mean `DummyRegressor` as a baseline for comparing model performance.
 
 2.  **Model Comparison and Tuning**
 
@@ -400,7 +400,7 @@ else:
     best_pipeline = dummy_pipeline
 ```
 
-We compared a mean dummy regressor with linear regression using five-fold cross-validation on the training data. We also searched over three Ridge regression penalty values. RMSE was used for comparison, with lower values indicating better performance. The model with the lowest cross-validation RMSE was selected. The test set was not used during model selection.
+We compared a mean `DummyRegressor` with linear regression using five-fold cross-validation on the training data, following scikit-learn's [cross-validation procedure](https://scikit-learn.org/stable/modules/cross_validation.html). In each fold, the model was trained on four parts of the training data and evaluated on the remaining part. We also tuned a Ridge regression model using three regularization strengths (`alpha` = 0.1, 1.0, and 10.0) through scikit-learn's [Ridge implementation](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html). We used root mean squared error (RMSE) as the evaluation metric because it summarizes prediction error in the same units as house value and gives greater weight to larger errors. Lower RMSE values indicate better performance. We selected the model with the lowest mean cross-validation RMSE, keeping the test set completely separate until final evaluation.
 
 ## Model Evaluation
 
@@ -423,7 +423,7 @@ print("Selected model:", best_model_name)
 print("Test RMSE:", test_rmse)
 ```
 
-We evaluated the selected model on the held-out test set after completing model selection using the training data. We calculated root mean squared error (RMSE), where lower values indicate smaller prediction errors. We also plotted predicted values against actual values to visually assess prediction accuracy.
+After completing model selection using only the training data, we refitted the selected pipeline on the full training set and evaluated it once on the held-out test set. We measured performance using root mean squared error (RMSE), which expresses prediction error in dollars and gives greater weight to larger errors; lower values indicate better predictive performance. We also created a predicted-versus-actual plot, using the diagonal reference line to assess how closely the model's predictions matched the observed house values.
 
 **Predicted-versus-actual plot**
 
@@ -458,4 +458,10 @@ The selected Ridge model achieved a test RMSE of approximately \$72,883 on the h
 
 # References
 
-<!-- Include at least four credible references cited throughout the report. -->
+1.  Nugent, C. (n.d.). *California Housing Prices* \[Data set\]. Kaggle. <https://www.kaggle.com/datasets/camnugent/california-housing-prices/data>
+
+2.  Scikit-learn developers. (n.d.). *Column Transformer*. Scikit-learn. <https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html>
+
+3.  Scikit-learn developers. (n.d.). *Cross-validation: evaluating estimator performance*. Scikit-learn. <https://scikit-learn.org/stable/modules/cross_validation.html>
+
+4.  Scikit-learn developers. (n.d.). *Ridge*. Scikit-learn. <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html>
