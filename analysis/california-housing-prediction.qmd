@@ -11,9 +11,7 @@ jupyter: python3
 
 # Summary
 
-This project investigates California housing prices using housing-related variables from the California Housing dataset. The analysis explores the relationship between median income, number of bedrooms, and ocean proximity, to better understand which factors are associated with housing prices.
-
-TO ADD: Our findings!!!
+This project investigates whether a small set of demographic and geographic variables can be used to predict median house values across California districts. Using 20,640 observations from the California Housing dataset, we modelled `median_house_value` from `median_income`, `bedrooms_per_household`, and `ocean_proximity` to explore relationships between these variables, to better understand which factors are associated with housing prices. Numeric missing values and categorical predictors were handled within a training-only preprocessing pipeline to avoid information leakage. We compared a mean baseline, linear regression, and Ridge regression using five-fold cross-validation, selecting Ridge as the best-performing model. It achieved a cross-validation RMSE of approximately \$74,305 and a test RMSE of approximately \$72,883, indicating similar performance on unseen districts. Although predictions generally tracked actual values, errors remained substantial for some high-priced districts. The dataset’s upper-value cap near \$500,000 further limits the model’s ability to represent the full range of housing prices.
 
 # Introduction
 
