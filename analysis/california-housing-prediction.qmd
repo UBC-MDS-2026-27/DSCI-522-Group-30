@@ -11,7 +11,7 @@ jupyter: python3
 
 # Link to full instructions from assignment page
 
-<!-- https://ubc-mds.github.io/DSCI_522_dsci-workflows_students/assignments/milestone1.html#write-the-data-analysis -->
+[Milestone 1 Instructions](https://ubc-mds.github.io/DSCI_522_dsci-workflows_students/assignments/milestone1.html#write-the-data-analysis)
 
 # Summary
 
@@ -78,7 +78,6 @@ housing.isnull().sum()
 ```
 
 This function allowed us to identify the missing observations. Thanks to this function, we found 207 missing values in `total_bedrooms`.
-
 
 ### 4. Check duplicate observations
 
@@ -147,15 +146,30 @@ Final variables retained:
 - `households` – Explanatory
 - `ocean_proximity` – Explanatory
 
-## Splitting the data
+## Feature engineering
+
 ```{python}
 import pandas as pd
+
+housing_features = pd.read_csv("../data/processed/housing_final.csv")
+
+housing_features["bedrooms_per_household"] = (
+    housing_features["total_bedrooms"] / housing_features["households"]
+)
+housing_features = housing_features.drop(columns=["total_bedrooms", "households"])
+
+housing_features.head()
+```
+
+Because `total_bedrooms` counts all bedrooms in a district, it mostly reflects district size rather than the size of typical homes. We divided it by the number of households to create `bedrooms_per_household`, then dropped the two original columns. This is calculated within each row, so it uses no information from other districts and can safely be done before the split. Districts with a missing `total_bedrooms` value also have a missing `bedrooms_per_household`; these are imputed later in the modelling pipeline using the training data only.
+
+## Splitting the data
+
+```{python}
 from sklearn.model_selection import train_test_split
 
-housing_final = pd.read_csv("../data/processed/housing_final.csv")
-
 housing_train, housing_test = train_test_split(
-    housing_final, test_size=0.2, random_state=522
+    housing_features, test_size=0.2, random_state=522
 )
 
 housing_train.to_csv("../data/processed/housing_train.csv", index=False)
@@ -164,11 +178,80 @@ housing_test.to_csv("../data/processed/housing_test.csv", index=False)
 housing_train.shape, housing_test.shape
 ```
 
-We split the cleaned data into a training set (80%) and a test set (20%) before doing any exploratory analysis or modelling, so that the test set does not influence any of our decisions. We set a random seed so that the split is the same every time the analysis is run.
+We split the data into a training set (80%) and a test set (20%) before doing any exploratory analysis or modelling, so that the test set does not influence any of our decisions. We set a random seed so that the split is the same every time the analysis is run.
 
 ## Exploratory Data Analysis
 
-<!-- Summarize and visualize the training data. -->
+We explored only the training data, so that the test set does not influence any of our decisions.
+
+```{python}
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+housing_train = pd.read_csv("../data/processed/housing_train.csv")
+
+housing_train.describe().round(2)
+```
+
+```{python}
+housing_train["ocean_proximity"].value_counts()
+```
+
+The table above summarizes the numeric variables in the training set, and the counts show how many districts fall into each ocean proximity category.
+
+```{python}
+#| label: fig-value-dist
+#| fig-cap: "Figure 1: Distribution of median house value in the training set."
+fig, ax = plt.subplots(figsize=(7, 5))
+ax.hist(housing_train["median_house_value"], bins=50)
+ax.set_xlabel("Median house value (USD)")
+ax.set_ylabel("Number of districts")
+plt.show()
+```
+
+Figure 1 shows that median house value is right-skewed, with a noticeable spike at the highest value, around \$500,000.
+
+```{python}
+#| label: fig-income-value
+#| fig-cap: "Figure 2: Median house value against median income for districts in the training set."
+fig, ax = plt.subplots(figsize=(7, 5))
+ax.scatter(housing_train["median_income"], housing_train["median_house_value"], alpha=0.2, s=8)
+ax.set_xlabel("Median income (tens of thousands of USD)")
+ax.set_ylabel("Median house value (USD)")
+plt.show()
+```
+
+Figure 2 shows a positive relationship between median income and median house value: districts with higher incomes tend to have more expensive homes. The horizontal line of points at about \$500,000 reflects a cap in the dataset: all districts with higher values are recorded at this maximum, so our model cannot learn to predict values above it.
+
+```{python}
+#| label: fig-bedrooms-value
+#| fig-cap: "Figure 3: Median house value against bedrooms per household for districts in the training set (x-axis limited to the 99th percentile)."
+upper = housing_train["bedrooms_per_household"].quantile(0.99)
+
+fig, ax = plt.subplots(figsize=(7, 5))
+ax.scatter(housing_train["bedrooms_per_household"], housing_train["median_house_value"], alpha=0.2, s=8)
+ax.set_xlim(housing_train["bedrooms_per_household"].min(), upper)
+ax.set_xlabel("Bedrooms per household")
+ax.set_ylabel("Median house value (USD)")
+plt.show()
+```
+
+Figure 3 shows that most districts have about one bedroom per household (roughly 0.9 to 1.2). Within this range there is no clear trend in median house value, although districts with more than about 1.25 bedrooms per household tend to have lower values, mostly below \$200,000. A small number of districts have extreme values (up to about 34), so the x-axis is limited to the 99th percentile (about 2.2) for readability.
+
+```{python}
+#| label: fig-proximity-value
+#| fig-cap: "Figure 4: Distribution of median house value by ocean proximity in the training set."
+order = housing_train.groupby("ocean_proximity")["median_house_value"].median().sort_values().index
+fig, ax = plt.subplots(figsize=(7, 5))
+sns.boxplot(data=housing_train, x="ocean_proximity", y="median_house_value", order=order, ax=ax)
+ax.set_xlabel("Ocean proximity")
+ax.set_ylabel("Median house value (USD)")
+plt.show()
+```
+
+Figure 4 shows that inland districts have much lower median house values than districts near the coast, while the three coastal categories are broadly similar. The island category appears highest, but it contains very few districts, so this comparison is unreliable.
+
+**Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while bedrooms per household shows only a weak relationship. The cap on house values at about $500,000 is a limitation we will keep in mind when evaluating our model.
 
 ## Model Development
 
