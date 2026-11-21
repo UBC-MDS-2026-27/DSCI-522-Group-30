@@ -4,7 +4,7 @@
 
 Copyright (c) 2026 Twinkle Francis, Delaney Woods, Lise Gong
 
-This report (source contained in the [DSCI-522-Group-30 repository](https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30.git)) is made available under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
+This report (source contained in the [DSCI-522-Group-30-California-Housing-Prediction repository](https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction)) is made available under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
 
 You are free to:
 
@@ -12,7 +12,7 @@ You are free to:
 
 Under the following terms:
 
-- Attribution — You must give appropriate credit (mentioning that your work is derived from work that is Copyright (c) 2026 Twinkle Francis, Delaney Woods, Lise Gong and, where practical, linking to https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30), provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+- Attribution — You must give appropriate credit (mentioning that your work is derived from work that is Copyright (c) 2026 Twinkle Francis, Delaney Woods, Lise Gong and, where practical, linking to https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction), provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
 - NonCommercial — You may not use the material for commercial purposes.
 

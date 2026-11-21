@@ -1,7 +1,7 @@
 ---
 title: "Predicting California Housing Prices"
 subtitle: "DSCI 522 Group 30"
-authors:
+author:
   - Delaney Woods
   - Lise Gong
   - Twinkle Francis Abraham
@@ -15,7 +15,7 @@ jupyter: python3
 
 # Summary
 
-This project investigates whether a small set of demographic and geographic variables can be used to predict median house values across California districts. Using 20,640 observations from the [**California Housing dataset**](https://www.kaggle.com/datasets/camnugent/california-housing-prices/data), we modelled `median_house_value` from `median_income`, `bedrooms_per_household`, and `ocean_proximity` to explore relationships between these variables, to better understand which factors are associated with housing prices. Numeric missing values and categorical predictors were handled within a training-only preprocessing pipeline to avoid information leakage. We compared a mean baseline, linear regression, and Ridge regression using five-fold cross-validation, selecting Ridge as the best-performing model. It achieved a cross-validation RMSE of approximately \$74,305 and a test RMSE of approximately \$72,883, indicating similar performance on unseen districts. Although predictions generally tracked actual values, errors remained substantial for some high-priced districts. The dataset’s upper-value cap near \$500,000 further limits the model’s ability to represent the full range of housing prices.
+This project investigates whether a small set of demographic and geographic variables can be used to predict median house values across California districts. Using 20,640 observations from the [**California Housing dataset**](https://www.kaggle.com/datasets/camnugent/california-housing-prices/data), we modelled median house value from median income, bedrooms per household and ocean proximity to better understand which factors are associated with housing prices. Numeric missing values and categorical predictors were handled within a training-only preprocessing pipeline to avoid information leakage. We compared a mean baseline, linear regression and Ridge regression using five-fold cross-validation, selecting Ridge as the best-performing model. It achieved a cross-validation root mean squared error (RMSE) of approximately \$74,305 and a test RMSE of approximately \$72,883, indicating similar performance on unseen districts. Although predictions generally tracked actual values, errors remained substantial for some high-priced districts. The dataset’s upper-value cap near \$500,000 further limits the model’s ability to represent the full range of housing prices.
 
 # Introduction
 
@@ -23,7 +23,7 @@ Housing prices are an important economic issue globally, and especially in Calif
 
 In this project, our aim is to investigate how median household income, bedrooms per household (found through data processing), and ocean proximity are related to housing prices in California. Our research question is: Given these three variables, how well can we predict median house values across California regions?
 
-We use the California Housing dataset, published on Kaggle by Cam Nugent and based on data from the 1990 California census. Each row represents a census block group and includes information about housing and demographic characteristics. Our target variable is median_house_value, which represents the median house value for each area. The three explanatory variables used in our analysis are median_income, total_bedrooms (which we divide by households to achieve an estimate of bedrooms_per_household), and ocean_proximity. The dataset was originally featured in Aurélien Géron's Hands-On Machine Learning with Scikit-Learn and TensorFlow and is downloaded directly from the author's [GitHub repository for reproducibility](https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv).
+We use the California Housing dataset, published on Kaggle by Cam Nugent and based on data from the 1990 California census. Each row represents a census block group and includes information about housing and demographic characteristics. Our target variable is median house value, which represents the median house value for each area. The three explanatory variables used in our analysis are median income, total bedrooms (which we divide by the number of households to estimate bedrooms per household), and ocean proximity. The dataset was originally featured in Aurélien Géron's Hands-On Machine Learning with Scikit-Learn and TensorFlow and is downloaded directly from the author's [GitHub repository for reproducibility](https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv).
 
 # Methods
 
@@ -76,7 +76,7 @@ These functions allowed us to examine the first rows of the dataset, its dimensi
 housing.isnull().sum()
 ```
 
-This function allowed us to identify the missing observations. Thanks to this function, we found 207 missing values in `total_bedrooms`. However, we retain the missing values in order to not leak data in the preprocessing stages.
+This function allowed us to identify the missing observations. Thanks to this function, we found 207 missing values in total bedrooms. However, we retain the missing values in order to not leak data in the preprocessing stages.
 
 ### 4. Check duplicate observations
 
@@ -113,7 +113,7 @@ housing_final.duplicated().sum()
 housing_final.shape
 ```
 
-A final check to confirm that the only missing values are the 207 in total_bedrooms, that no duplicate rows remain, and that the dataset dimensions are as expected.
+A final check to confirm that the only missing values are the 207 in total bedrooms, that no duplicate rows remain, and that the dataset dimensions are as expected.
 
 ### 8. Export cleaned dataset
 
@@ -126,7 +126,7 @@ housing_final.to_csv(
 )
 ```
 
-We then saved the cleaned dataset in the processed data folder so it can be reused for exploratory data analysis and modelling without modifying the original raw data. The 207 missing total_bedrooms values are intentionally retained for imputation after the train/test split.
+We then saved the cleaned dataset in the processed data folder so it can be reused for exploratory data analysis and modelling without modifying the original raw data. The 207 missing total bedrooms values are intentionally retained for imputation after the train/test split.
 
 ## Final results
 
@@ -137,13 +137,15 @@ We then saved the cleaned dataset in the processed data folder so it can be reus
 | Missing values | 207    | 207    |
 | Duplicate rows | 0      | 0      |
 
+: Dataset dimensions and data quality before and after cleaning. {#tbl-cleaning}
+
 Final variables retained:
 
-- `median_house_value` – Outcome
-- `median_income` – Explanatory
-- `total_bedrooms` – Explanatory
-- `households` – Explanatory
-- `ocean_proximity` – Explanatory
+- Median house value (outcome)
+- Median income (explanatory)
+- Total bedrooms (explanatory)
+- Households (explanatory)
+- Ocean proximity (explanatory)
 
 ## Feature engineering
 
@@ -160,7 +162,7 @@ housing_features = housing_features.drop(columns=["total_bedrooms", "households"
 housing_features.head()
 ```
 
-Because `total_bedrooms` counts all bedrooms in a district, it mostly reflects district size rather than the size of typical homes. We divided it by the number of households to create `bedrooms_per_household`, then dropped the two original columns. This is calculated within each row, so it uses no information from other districts and can safely be done before the split. Districts with a missing `total_bedrooms` value also have a missing `bedrooms_per_household`; these are imputed later in the modelling pipeline using the training data only.
+Because total bedrooms counts all bedrooms in a district, it mostly reflects district size rather than the size of typical homes. We divided it by the number of households to create a bedrooms per household variable, then dropped the two original columns. This is calculated within each row, so it uses no information from other districts and can safely be done before the split. Districts with a missing total bedrooms value also have a missing bedrooms per household value; these are imputed later in the modelling pipeline using the training data only.
 
 ## Splitting the data
 
@@ -184,6 +186,8 @@ We split the data into a training set (80%) and a test set (20%) before doing an
 We explored only the training data, so that the test set does not influence any of our decisions.
 
 ```{python}
+#| label: tbl-train-summary
+#| tbl-cap: "Summary statistics of numeric variables in the training set."
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -319,11 +323,14 @@ print("Training predictors:", X_train.shape[1])
 print("First five baseline predictions:", dummy_predictions[:5])
 ```
 
-We predicted `median_house_value` using `median_income`, `bedrooms_per_household`, and `ocean_proximity`. The numeric variables were processed with median imputation for missing values and standardization. The categorical `ocean_proximity` variable was converted into one-hot encoded indicators using scikit-learn's [ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html). All pre-processing steps were placed inside a pipeline so that they were fitted using training data only and were repeated separately within each cross-validation fold. We also fitted a mean `DummyRegressor` as a baseline for comparing model performance.
+We predicted median house value using median income, bedrooms per household and ocean proximity. The numeric variables were processed with median imputation for missing values and standardization. The categorical ocean proximity variable was converted into one-hot encoded indicators using scikit-learn's [ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html). All pre-processing steps were placed inside a pipeline so that they were fitted using training data only and were repeated separately within each cross-validation fold. We also fitted a mean `DummyRegressor` as a baseline for comparing model performance.
 
 2.  **Model Comparison and Tuning**
 
 ```{python}
+#| label: tbl-model-comparison
+#| tbl-cap: "Mean and standard deviation of five-fold cross-validation RMSE for each model."
+
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.model_selection import GridSearchCV, cross_validate
 
