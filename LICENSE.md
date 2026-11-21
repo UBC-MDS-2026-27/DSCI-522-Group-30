@@ -6,7 +6,7 @@
 
 Copyright (c) 2026 Twinkle Francis, Delaney Woods, Lise Gong
 
-This report (source contained in the DSCI-522-Group-30 repository) is made available under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license.
+This report (source contained in the [DSCI-522-Group-30 repository](https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30.git)) is made available under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)) license.
 
 You are free to:
 
