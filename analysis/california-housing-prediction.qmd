@@ -147,6 +147,25 @@ Final variables retained:
 - `households` – Explanatory
 - `ocean_proximity` – Explanatory
 
+## Splitting the data
+```{python}
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+housing_final = pd.read_csv("../data/processed/housing_final.csv")
+
+housing_train, housing_test = train_test_split(
+    housing_final, test_size=0.2, random_state=522
+)
+
+housing_train.to_csv("../data/processed/housing_train.csv", index=False)
+housing_test.to_csv("../data/processed/housing_test.csv", index=False)
+
+housing_train.shape, housing_test.shape
+```
+
+We split the cleaned data into a training set (80%) and a test set (20%) before doing any exploratory analysis or modelling, so that the test set does not influence any of our decisions. We set a random seed so that the split is the same every time the analysis is run.
+
 ## Exploratory Data Analysis
 
 <!-- Summarize and visualize the training data. -->
