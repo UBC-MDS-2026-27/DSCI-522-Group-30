@@ -251,9 +251,74 @@ plt.show()
 
 Figure 4 shows that inland districts have much lower median house values than districts near the coast, while the three coastal categories are broadly similar. The island category appears highest, but it contains very few districts, so this comparison is unreliable.
 
-**Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while bedrooms per household shows only a weak relationship. The cap on house values at about $500,000 is a limitation we will keep in mind when evaluating our model.
+**Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while bedrooms per household shows only a weak relationship. The cap on house values at about \$500,000 is a limitation we will keep in mind when evaluating our model.
 
 ## Model Development
+
+```{python}
+from sklearn.compose import ColumnTransformer
+from sklearn.dummy import DummyRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+# Load the training data only.
+housing_train = pd.read_csv("../data/processed/housing_train.csv")
+
+target = "median_house_value"
+
+numeric_features = [
+    "median_income",
+    "bedrooms_per_household",
+]
+
+categorical_features = [
+    "ocean_proximity",
+]
+
+predictor_features = numeric_features + categorical_features
+
+X_train = housing_train[predictor_features]
+y_train = housing_train[target]
+
+numeric_preprocessor = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", StandardScaler()),
+    ]
+)
+
+categorical_preprocessor = Pipeline(
+    steps=[
+        ("encoder", OneHotEncoder(handle_unknown="ignore")),
+    ]
+)
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("numeric", numeric_preprocessor, numeric_features),
+        ("categorical", categorical_preprocessor, categorical_features),
+    ]
+)
+
+dummy_pipeline = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        ("model", DummyRegressor(strategy="mean")),
+    ]
+)
+
+dummy_pipeline.fit(X_train, y_train)
+
+# Confirm that the fitted baseline can make predictions.
+dummy_predictions = dummy_pipeline.predict(X_train)
+
+print("Training rows:", X_train.shape[0])
+print("Training predictors:", X_train.shape[1])
+print("First five baseline predictions:", dummy_predictions[:5])
+```
+
+We used median income, bedrooms per household, and ocean proximity as predictors of median house value. The numeric predictors were processed with median imputation and standardization, and ocean proximity was converted into one-hot encoded columns. These steps were placed inside a pipeline and fitted using the training data only. We also fitted a mean DummyRegressor as a simple baseline for later model comparison.
 
 <!-- Describe the predictive model and how it was trained. -->
 
