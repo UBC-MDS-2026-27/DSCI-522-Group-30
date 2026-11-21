@@ -322,8 +322,6 @@ print("First five baseline predictions:", dummy_predictions[:5])
 
 We used median income, bedrooms per household, and ocean proximity as predictors of median house value. The numeric predictors were processed with median imputation and standardization, and ocean proximity was converted into one-hot encoded columns. These steps were placed inside a pipeline and fitted using the training data only. We also fitted a mean DummyRegressor as a simple baseline for later model comparison.
 
-<!-- Describe the predictive model and how it was trained. -->
-
 2.  **Model Comparison and Tuning**
 
 ```{python}
@@ -406,11 +404,53 @@ We compared a mean dummy regressor with linear regression using five-fold cross-
 
 ## Model Evaluation
 
-<!-- Explain the evaluation metric and testing procedure. -->
+```{python}
+from sklearn.metrics import mean_squared_error
+
+housing_test = pd.read_csv("../data/processed/housing_test.csv")
+
+X_test = housing_test[predictor_features]
+y_test = housing_test[target]
+
+# Refit the selected pipeline using all training data.
+best_pipeline.fit(X_train, y_train)
+
+test_predictions = best_pipeline.predict(X_test)
+
+test_rmse = mean_squared_error(y_test, test_predictions) ** 0.5
+
+print("Selected model:", best_model_name)
+print("Test RMSE:", test_rmse)
+```
+
+We evaluated the selected model on the held-out test set after completing model selection using the training data. We calculated root mean squared error (RMSE), where lower values indicate smaller prediction errors. We also plotted predicted values against actual values to visually assess prediction accuracy.
+
+**Predicted-versus-actual plot**
+
+```{python}
+plt.figure(figsize=(6, 6))
+
+plt.scatter(y_test, test_predictions, alpha=0.3)
+
+plot_min = min(y_test.min(), test_predictions.min())
+plot_max = max(y_test.max(), test_predictions.max())
+
+plt.plot(
+    [plot_min, plot_max],
+    [plot_min, plot_max],
+    linestyle="--",
+    color="red",
+)
+
+plt.xlabel("Actual median house value (USD)")
+plt.ylabel("Predicted median house value (USD)")
+plt.title("Predicted versus actual house values")
+plt.show()
+```
 
 # Results
 
-<!-- Present the model results, figures, and tables. -->
+The selected Ridge model achieved a test RMSE of approximately \$72,883 on the held-out test data. The test RMSE was similar to the cross-validation RMSE of approximately \$74,305, suggesting that the model performed similarly on unseen data. Predictions generally increased with actual house values, as shown by the upward pattern around the diagonal reference line. However, the substantial spread around the line indicates prediction errors, especially for higher-priced districts. The vertical band near \$500,000 reflects the dataset’s house-value cap.
 
 # Discussion
 
