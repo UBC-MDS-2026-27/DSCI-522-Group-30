@@ -65,7 +65,7 @@ Our team used generative AI tools (ChatGPT and Claude) to help format documentat
 ## Report
 The rendered project report can be found here:
 
-[HTML]() or [PDF]() 
+[here](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30/analysis/california-housing-prediction.html)(HTML) or [here](analysis/california-housing-prediction.pdf)(PDF) 
 
 ## License
 The project report is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
