@@ -16,20 +16,22 @@ The California Housing dataset was originally obtained from Kaggle, uploaded by 
 
 The dataset contains information from the 1990 California census and was originally featured in Aurélien Géron's book Hands-On Machine Learning with Scikit-Learn and TensorFlow.
 
-For reproducibility, the dataset is downloaded programmatically from Géron's Hands-On Machine Learning GitHub repository. The download code saves the CSV file to data/raw/housing.csv when the Quarto analysis is rendered. The raw dataset does not need to be manually downloaded or committed to the repository.
+For reproducibility, the dataset is downloaded programmatically from Géron's Hands-On Machine Learning GitHub repository. The download code saves the CSV file to data/raw/housing.csv when the Quarto analysis is rendered. The raw dataset does not need to be downloaded manually, and a copy is included in `data/raw/` for convenience.
+
+## How to Run the Analysis
 
 ### Setup
 
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30.git
+git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction.git
 ```
 
 2. Navigate into the project directory:
 
 ```bash
-cd DSCI-522-Group-30
+cd DSCI-522-Group-30-California-Housing-Prediction
 ```
 
 3. Install the project dependencies:
@@ -44,13 +46,13 @@ uv sync
 uv run quarto render analysis/california-housing-prediction.qmd
 ```
 
-Rendering runs the full analysis from scratch: it downloads the raw data from Géron's GitHub repository (so you need an internet connection) and overwrites the files in `data/processed/`. The rendered report is written to `analysis/california-housing-prediction.html`.
+Rendering runs the full analysis from scratch: it downloads the raw data from Géron's GitHub repository (so you need an internet connection) and overwrites the files in `data/raw/` and `data/processed/`. The rendered report is written to `analysis/california-housing-prediction.html`.
 
 ## Dependencies
 
 Project dependencies are managed through pyproject.toml and uv.lock.
 
-## Required software:
+### Required software:
 
 - Python (version 3.14 or higher)
 - uv (version: 0.12.7)
@@ -62,14 +64,19 @@ Python package dependencies are listed in pyproject.toml, with exact versions re
 
 Our team used generative AI tools (ChatGPT and Claude) to help format documentation, debug Git and environment setup issues, and draft parts of the analysis code and report text. All AI-assisted contributions were reviewed, tested and edited by team members, who take full responsibility for the content of this repository. AI use is also disclosed in the relevant pull requests.
 
-## Report
-The rendered project report can be found here:
+Example prompts we used:
 
-[here](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30/analysis/california-housing-prediction.html)(HTML) or [here](analysis/california-housing-prediction.pdf)(PDF) 
+- "Why does `uv sync` fail with 'Expected a Python module'?"
+- "How do I review a pull request and check that the analysis is reproducible?"
+- "How do I add a figure caption in Quarto?"
+
+## Report
+
+The rendered report can be found [here](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30-California-Housing-Prediction/analysis/california-housing-prediction.html) (HTML), or as a [PDF](analysis/california-housing-prediction.pdf).
 
 ## License
 The project report is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
 
 The software code is licensed under the MIT License.
 
-See [LICENSE.md](https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30/blob/main/LICENSE.md) for the full license information.
+See [LICENSE.md](https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction/blob/main/LICENSE.md) for the full license information.
