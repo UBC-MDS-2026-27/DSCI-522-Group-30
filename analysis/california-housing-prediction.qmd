@@ -15,7 +15,7 @@ jupyter: python3
 
 # Summary
 
-<!-- Summarize the research question, findings, and limitations. -->
+This project investigates whether a small set of demographic and geographic variables can be used to predict median house values across California districts. Using 20,640 observations from the California Housing dataset, we modelled `median_house_value` from `median_income`, `bedrooms_per_household`, and `ocean_proximity`. Numeric missing values and categorical predictors were handled within a training-only preprocessing pipeline to avoid information leakage. We compared a mean baseline, linear regression, and Ridge regression using five-fold cross-validation, selecting Ridge as the best-performing model. It achieved a cross-validation RMSE of approximately \$74,305 and a test RMSE of approximately \$72,883, indicating similar performance on unseen districts. Although predictions generally tracked actual values, errors remained substantial for some high-priced districts. The dataset’s upper-value cap near \$500,000 further limits the model’s ability to represent the full range of housing prices.
 
 # Introduction
 
@@ -30,7 +30,7 @@ describe the dataset, and define the response variable. -->
 
 Data Source
 
-The California Housing dataset was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables.
+The [California Housing dataset](https://www.kaggle.com/datasets/camnugent/california-housing-prices/data) was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables.
 
 According to the Kaggle dataset description, the data was in Aurélien Géron's book Hands-On Machine Learning with Scikit-Learn and TensorFlow. Géron's version is a modified version of the original California Housing dataset.
 
@@ -251,19 +251,206 @@ plt.show()
 
 Figure 4 shows that inland districts have much lower median house values than districts near the coast, while the three coastal categories are broadly similar. The island category appears highest, but it contains very few districts, so this comparison is unreliable.
 
-**Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while bedrooms per household shows only a weak relationship. The cap on house values at about $500,000 is a limitation we will keep in mind when evaluating our model.
+**Takeaway**: Overall, median income and ocean proximity appear to be the most useful predictors of median house value, while bedrooms per household shows only a weak relationship. The cap on house values at about \$500,000 is a limitation we will keep in mind when evaluating our model.
 
 ## Model Development
 
-<!-- Describe the predictive model and how it was trained. -->
+1.  **Preprocessing and baseline**
+
+```{python}
+from sklearn.compose import ColumnTransformer
+from sklearn.dummy import DummyRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+# Load the training data only.
+housing_train = pd.read_csv("../data/processed/housing_train.csv")
+
+target = "median_house_value"
+
+numeric_features = [
+    "median_income",
+    "bedrooms_per_household",
+]
+
+categorical_features = [
+    "ocean_proximity",
+]
+
+predictor_features = numeric_features + categorical_features
+
+X_train = housing_train[predictor_features]
+y_train = housing_train[target]
+
+numeric_preprocessor = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scaler", StandardScaler()),
+    ]
+)
+
+categorical_preprocessor = Pipeline(
+    steps=[
+        ("encoder", OneHotEncoder(handle_unknown="ignore")),
+    ]
+)
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("numeric", numeric_preprocessor, numeric_features),
+        ("categorical", categorical_preprocessor, categorical_features),
+    ]
+)
+
+dummy_pipeline = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        ("model", DummyRegressor(strategy="mean")),
+    ]
+)
+
+dummy_pipeline.fit(X_train, y_train)
+
+# Confirm that the fitted baseline can make predictions.
+dummy_predictions = dummy_pipeline.predict(X_train)
+
+print("Training rows:", X_train.shape[0])
+print("Training predictors:", X_train.shape[1])
+print("First five baseline predictions:", dummy_predictions[:5])
+```
+
+We predicted `median_house_value` using `median_income`, `bedrooms_per_household`, and `ocean_proximity`. The numeric variables were processed with median imputation for missing values and standardization. The categorical `ocean_proximity` variable was converted into one-hot encoded indicators using scikit-learn's [ColumnTransformer](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html). All pre-processing steps were placed inside a pipeline so that they were fitted using training data only and were repeated separately within each cross-validation fold. We also fitted a mean `DummyRegressor` as a baseline for comparing model performance.
+
+2.  **Model Comparison and Tuning**
+
+```{python}
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.model_selection import GridSearchCV, cross_validate
+
+linear_pipeline = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("model", LinearRegression()),
+])
+
+ridge_pipeline = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("model", Ridge()),
+])
+
+candidate_pipelines = {
+    "DummyRegressor": dummy_pipeline,
+    "LinearRegression": linear_pipeline,
+}
+
+cv_results = []
+
+for model_name, pipeline in candidate_pipelines.items():
+    scores = cross_validate(
+        pipeline,
+        X_train,
+        y_train,
+        cv=5,
+        scoring="neg_root_mean_squared_error",
+        n_jobs=-1,
+    )
+
+    cv_results.append({
+        "Model": model_name,
+        "Mean CV RMSE": -scores["test_score"].mean(),
+        "SD CV RMSE": scores["test_score"].std(),
+    })
+
+ridge_search = GridSearchCV(
+    ridge_pipeline,
+    param_grid={"model__alpha": [0.1, 1.0, 10.0]},
+    cv=5,
+    scoring="neg_root_mean_squared_error",
+    n_jobs=-1,
+)
+
+ridge_search.fit(X_train, y_train)
+
+best_ridge_index = ridge_search.best_index_
+
+cv_results.append({
+    "Model": "Ridge",
+    "Mean CV RMSE": -ridge_search.best_score_,
+    "SD CV RMSE": ridge_search.cv_results_["std_test_score"][best_ridge_index],
+})
+
+model_comparison = (
+    pd.DataFrame(cv_results)
+    .sort_values("Mean CV RMSE")
+    .reset_index(drop=True)
+)
+
+model_comparison
+```
+
+```{python}
+best_model_name = model_comparison.loc[0, "Model"]
+print("Selected model:", best_model_name)
+
+if best_model_name == "Ridge":
+    best_pipeline = ridge_search.best_estimator_
+elif best_model_name == "LinearRegression":
+    best_pipeline = linear_pipeline
+else:
+    best_pipeline = dummy_pipeline
+```
+
+We compared a mean `DummyRegressor` with linear regression using five-fold cross-validation on the training data, following scikit-learn's [cross-validation procedure](https://scikit-learn.org/stable/modules/cross_validation.html). In each fold, the model was trained on four parts of the training data and evaluated on the remaining part. We also tuned a Ridge regression model using three regularization strengths (`alpha` = 0.1, 1.0, and 10.0) through scikit-learn's [Ridge implementation](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html). We used root mean squared error (RMSE) as the evaluation metric because it summarizes prediction error in the same units as house value and gives greater weight to larger errors. Lower RMSE values indicate better performance. We selected the model with the lowest mean cross-validation RMSE, keeping the test set completely separate until final evaluation.
 
 ## Model Evaluation
 
-<!-- Explain the evaluation metric and testing procedure. -->
+```{python}
+from sklearn.metrics import mean_squared_error
+
+housing_test = pd.read_csv("../data/processed/housing_test.csv")
+
+X_test = housing_test[predictor_features]
+y_test = housing_test[target]
+
+# Refit the selected pipeline using all training data.
+best_pipeline.fit(X_train, y_train)
+
+test_predictions = best_pipeline.predict(X_test)
+
+test_rmse = mean_squared_error(y_test, test_predictions) ** 0.5
+
+print("Selected model:", best_model_name)
+print("Test RMSE:", test_rmse)
+```
+
+After completing model selection using only the training data, we refitted the selected pipeline on the full training set and evaluated it once on the held-out test set. We measured performance using root mean squared error (RMSE), which expresses prediction error in dollars and gives greater weight to larger errors; lower values indicate better predictive performance. We also created a predicted-versus-actual plot, using the diagonal reference line to assess how closely the model's predictions matched the observed house values.
+
+**Predicted-versus-actual plot**
+
+```{python}
+plt.figure(figsize=(6, 6))
+
+plt.scatter(y_test, test_predictions, alpha=0.3)
+
+plot_min = min(y_test.min(), test_predictions.min())
+plot_max = max(y_test.max(), test_predictions.max())
+
+plt.plot(
+    [plot_min, plot_max],
+    [plot_min, plot_max],
+    linestyle="--",
+    color="red",
+)
+
+plt.xlabel("Actual median house value (USD)")
+plt.ylabel("Predicted median house value (USD)")
+plt.title("Predicted versus actual house values")
+plt.show()
+```
 
 # Results
 
-<!-- Present the model results, figures, and tables. -->
+The selected Ridge model achieved a test RMSE of approximately \$72,883 on the held-out test data. The test RMSE was similar to the cross-validation RMSE of approximately \$74,305, suggesting that the model performed similarly on unseen data. Predictions generally increased with actual house values, as shown by the upward pattern around the diagonal reference line. However, the substantial spread around the line indicates prediction errors, especially for higher-priced districts. The vertical band near \$500,000 reflects the dataset’s house-value cap.
 
 # Discussion
 
@@ -271,4 +458,10 @@ Figure 4 shows that inland districts have much lower median house values than di
 
 # References
 
-<!-- Include at least four credible references cited throughout the report. -->
+1.  Nugent, C. (n.d.). *California Housing Prices* \[Data set\]. Kaggle. <https://www.kaggle.com/datasets/camnugent/california-housing-prices/data>
+
+2.  Scikit-learn developers. (n.d.). *Column Transformer*. Scikit-learn. <https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html>
+
+3.  Scikit-learn developers. (n.d.). *Cross-validation: evaluating estimator performance*. Scikit-learn. <https://scikit-learn.org/stable/modules/cross_validation.html>
+
+4.  Scikit-learn developers. (n.d.). *Ridge*. Scikit-learn. <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html>
