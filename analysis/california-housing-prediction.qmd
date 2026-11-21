@@ -1,6 +1,10 @@
 ---
 title: "Predicting California Housing Prices"
-author: "Group 30"
+subtitle: "DSCI 522 Group 30"
+authors:
+  - Delaney Woods
+  - Lise Gong
+  - Twinkle Francis Abraham
 format:
   html:
     toc: true
