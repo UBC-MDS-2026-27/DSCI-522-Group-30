@@ -6,7 +6,7 @@ Lise Gong, Delaney Woods, Twinkle Francis (DSCI 522 Group 30)
 
 ## Summary
 
-This project investigates California housing prices using housing-related variables from the California Housing dataset. The analysis explores the relationship between median income, number of bedrooms, and ocean proximity, to better understand which factors are associated with housing prices.
+This project investigates California housing prices using housing-related variables from the California Housing dataset. The analysis explores the relationship between median income, bedrooms per household, and ocean proximity, to better understand which factors are associated with housing prices and to predict median house value.
 
 ## Data Sources
 
@@ -19,10 +19,9 @@ For reproducibility, the dataset is downloaded programmatically from Géron's Ha
 ## How to Run the Analysis
 
 ### Setup
-1. Clone this repository and navigate into the project directory:
+1. Clone this repository:
 bash
 git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30.git
-cd DSCI-522-Group-30
 
 2. Navigate into the project directory:
 bash
@@ -34,7 +33,7 @@ uv sync
 
 4. Ensure Quarto is installed and render the analysis:
 bash
-quarto render analysis/california-housing-prediction.qmd
+uv run quarto render analysis/california-housing-prediction.qmd
 
 The dataset will automatically download into data/raw/ during rendering.
 
@@ -62,7 +61,7 @@ HTML: TO EDIT
 PDF: TO EDIT 
 
 ## License
-The project report is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)) license.
+The project report is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
 
 The software code is licensed under the MIT License.
 
