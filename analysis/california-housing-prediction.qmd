@@ -255,6 +255,8 @@ Figure 4 shows that inland districts have much lower median house values than di
 
 ## Model Development
 
+1.  **Preprocessing and baseline**
+
 ```{python}
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyRegressor
@@ -321,6 +323,86 @@ print("First five baseline predictions:", dummy_predictions[:5])
 We used median income, bedrooms per household, and ocean proximity as predictors of median house value. The numeric predictors were processed with median imputation and standardization, and ocean proximity was converted into one-hot encoded columns. These steps were placed inside a pipeline and fitted using the training data only. We also fitted a mean DummyRegressor as a simple baseline for later model comparison.
 
 <!-- Describe the predictive model and how it was trained. -->
+
+2.  **Model Comparison and Tuning**
+
+```{python}
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.model_selection import GridSearchCV, cross_validate
+
+linear_pipeline = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("model", LinearRegression()),
+])
+
+ridge_pipeline = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("model", Ridge()),
+])
+
+candidate_pipelines = {
+    "DummyRegressor": dummy_pipeline,
+    "LinearRegression": linear_pipeline,
+}
+
+cv_results = []
+
+for model_name, pipeline in candidate_pipelines.items():
+    scores = cross_validate(
+        pipeline,
+        X_train,
+        y_train,
+        cv=5,
+        scoring="neg_root_mean_squared_error",
+        n_jobs=-1,
+    )
+
+    cv_results.append({
+        "Model": model_name,
+        "Mean CV RMSE": -scores["test_score"].mean(),
+        "SD CV RMSE": scores["test_score"].std(),
+    })
+
+ridge_search = GridSearchCV(
+    ridge_pipeline,
+    param_grid={"model__alpha": [0.1, 1.0, 10.0]},
+    cv=5,
+    scoring="neg_root_mean_squared_error",
+    n_jobs=-1,
+)
+
+ridge_search.fit(X_train, y_train)
+
+best_ridge_index = ridge_search.best_index_
+
+cv_results.append({
+    "Model": "Ridge",
+    "Mean CV RMSE": -ridge_search.best_score_,
+    "SD CV RMSE": ridge_search.cv_results_["std_test_score"][best_ridge_index],
+})
+
+model_comparison = (
+    pd.DataFrame(cv_results)
+    .sort_values("Mean CV RMSE")
+    .reset_index(drop=True)
+)
+
+model_comparison
+```
+
+```{python}
+best_model_name = model_comparison.loc[0, "Model"]
+print("Selected model:", best_model_name)
+
+if best_model_name == "Ridge":
+    best_pipeline = ridge_search.best_estimator_
+elif best_model_name == "LinearRegression":
+    best_pipeline = linear_pipeline
+else:
+    best_pipeline = dummy_pipeline
+```
+
+We compared a mean dummy regressor with linear regression using five-fold cross-validation on the training data. We also searched over three Ridge regression penalty values. RMSE was used for comparison, with lower values indicating better performance. The model with the lowest cross-validation RMSE was selected. The test set was not used during model selection.
 
 ## Model Evaluation
 
