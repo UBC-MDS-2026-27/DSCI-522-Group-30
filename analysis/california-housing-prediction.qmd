@@ -11,7 +11,7 @@ jupyter: python3
 
 # Summary
 
-This project investigates whether a small set of demographic and geographic variables can be used to predict median house values across California districts. Using 20,640 observations from the California Housing dataset, we modelled `median_house_value` from `median_income`, `bedrooms_per_household`, and `ocean_proximity` to explore relationships between these variables, to better understand which factors are associated with housing prices. Numeric missing values and categorical predictors were handled within a training-only preprocessing pipeline to avoid information leakage. We compared a mean baseline, linear regression, and Ridge regression using five-fold cross-validation, selecting Ridge as the best-performing model. It achieved a cross-validation RMSE of approximately \$74,305 and a test RMSE of approximately \$72,883, indicating similar performance on unseen districts. Although predictions generally tracked actual values, errors remained substantial for some high-priced districts. The dataset’s upper-value cap near \$500,000 further limits the model’s ability to represent the full range of housing prices.
+This project investigates whether a small set of demographic and geographic variables can be used to predict median house values across California districts. Using 20,640 observations from the [**California Housing dataset**](https://www.kaggle.com/datasets/camnugent/california-housing-prices/data), we modelled `median_house_value` from `median_income`, `bedrooms_per_household`, and `ocean_proximity` to explore relationships between these variables, to better understand which factors are associated with housing prices. Numeric missing values and categorical predictors were handled within a training-only preprocessing pipeline to avoid information leakage. We compared a mean baseline, linear regression, and Ridge regression using five-fold cross-validation, selecting Ridge as the best-performing model. It achieved a cross-validation RMSE of approximately \$74,305 and a test RMSE of approximately \$72,883, indicating similar performance on unseen districts. Although predictions generally tracked actual values, errors remained substantial for some high-priced districts. The dataset’s upper-value cap near \$500,000 further limits the model’s ability to represent the full range of housing prices.
 
 # Introduction
 
@@ -53,7 +53,7 @@ urllib.request.urlretrieve(housing_url, housing_path)
 housing = pd.read_csv(housing_path)
 ```
 
-We imported pandas to assist with data manipulation, NumPy for the numerical operations, and loaded the raw housing dataset into Python after downloading locally.
+We imported pandas for data manipulation and NumPy for numerical operations, then downloaded the raw dataset from Géron’s GitHub repository and loaded it into Python.
 
 ### 2. Inspect the dataset
 
@@ -109,7 +109,7 @@ housing_final.duplicated().sum()
 housing_final.shape
 ```
 
-A final check to verify the missing values amount is 207 or duplicate rows remained and to ensure that the final dataset dimensions are what we expected.
+A final check to confirm that the only missing values are the 207 in total_bedrooms, that no duplicate rows remain, and that the dataset dimensions are as expected.
 
 ### 8. Export cleaned dataset
 
@@ -196,7 +196,7 @@ The table above summarizes the numeric variables in the training set, and the co
 
 ```{python}
 #| label: fig-value-dist
-#| fig-cap: "Figure 1: Distribution of median house value in the training set."
+#| fig-cap: "Distribution of median house value in the training set."
 fig, ax = plt.subplots(figsize=(7, 5))
 ax.hist(housing_train["median_house_value"], bins=50)
 ax.set_xlabel("Median house value (USD)")
@@ -208,7 +208,7 @@ Figure 1 shows that median house value is right-skewed, with a noticeable spike 
 
 ```{python}
 #| label: fig-income-value
-#| fig-cap: "Figure 2: Median house value against median income for districts in the training set."
+#| fig-cap: "Median house value against median income for districts in the training set."
 fig, ax = plt.subplots(figsize=(7, 5))
 ax.scatter(housing_train["median_income"], housing_train["median_house_value"], alpha=0.2, s=8)
 ax.set_xlabel("Median income (tens of thousands of USD)")
@@ -220,7 +220,7 @@ Figure 2 shows a positive relationship between median income and median house va
 
 ```{python}
 #| label: fig-bedrooms-value
-#| fig-cap: "Figure 3: Median house value against bedrooms per household for districts in the training set (x-axis limited to the 99th percentile)."
+#| fig-cap: "Median house value against bedrooms per household for districts in the training set (x-axis limited to the 99th percentile)."
 upper = housing_train["bedrooms_per_household"].quantile(0.99)
 
 fig, ax = plt.subplots(figsize=(7, 5))
@@ -235,7 +235,7 @@ Figure 3 shows that most districts have about one bedroom per household (roughly
 
 ```{python}
 #| label: fig-proximity-value
-#| fig-cap: "Figure 4: Distribution of median house value by ocean proximity in the training set."
+#| fig-cap: "Distribution of median house value by ocean proximity in the training set."
 order = housing_train.groupby("ocean_proximity")["median_house_value"].median().sort_values().index
 fig, ax = plt.subplots(figsize=(7, 5))
 sns.boxplot(data=housing_train, x="ocean_proximity", y="median_house_value", order=order, ax=ax)
@@ -380,7 +380,7 @@ model_comparison = (
     .reset_index(drop=True)
 )
 
-model_comparison
+model_comparison.round(0)
 ```
 
 ```{python}
@@ -423,6 +423,8 @@ After completing model selection using only the training data, we refitted the s
 **Predicted-versus-actual plot**
 
 ```{python}
+#| label: fig-pred-actual
+#| fig-cap: "Predicted versus actual median house values for the test set, with the diagonal line showing perfect predictions."
 plt.figure(figsize=(6, 6))
 
 plt.scatter(y_test, test_predictions, alpha=0.3)
@@ -449,7 +451,13 @@ The selected Ridge model achieved a test RMSE of approximately \$72,883 on the h
 
 # Discussion
 
-<!-- Interpret findings, discuss limitations, implications, and future work. -->
+Our Ridge regression model predicted median house values with a test RMSE of approximately \$72,883, similar to its cross-validation RMSE of \$74,305. This is a substantial improvement over the mean baseline (cross-validation RMSE of approximately \$115,439), reducing prediction error by about 36%. This suggests that median income, bedrooms per household and ocean proximity together capture a meaningful part of the variation in housing prices across California districts. Ridge and linear regression performed almost identically, which is expected given that our model uses only three predictors, leaving little room for regularization to improve performance.
+
+These results are consistent with our exploratory analysis. Median income showed the clearest positive relationship with house value, inland districts had noticeably lower values than coastal ones, and bedrooms per household showed only a weak relationship. However, an RMSE of about \$73,000 is still large compared to the average house value in the training data (about \$207,000), so the model is better suited to identifying broad trends than to precise predictions for individual districts.
+
+Our analysis has several limitations. House values in the dataset are capped at about \$500,000, so the most expensive districts are recorded at this maximum. As the predicted-versus-actual plot shows, this leads the model to underpredict many high-value districts while sometimes predicting values above the cap. The data are also from the 1990 census and may not reflect current housing markets, and the island category contains very few districts, so its estimates are unreliable. Finally, we only considered linear models with three predictors.
+
+Future work could include additional predictors such as housing age, population density or geographic coordinates, explore non-linear models such as random forests or gradient boosting, and handle the capped values, for example by excluding or separately modelling districts at the cap.
 
 # References
 
