@@ -9,28 +9,25 @@ format:
 jupyter: python3
 ---
 
-# Link to full instructions from assignment page
-
-[Milestone 1 Instructions](https://ubc-mds.github.io/DSCI_522_dsci-workflows_students/assignments/milestone1.html#write-the-data-analysis)
-
 # Summary
 
-<!-- Summarize the research question, findings, and limitations. -->
+This project investigates California housing prices using housing-related variables from the California Housing dataset. The analysis explores the relationship between median income, number of bedrooms, and ocean proximity, to better understand which factors are associated with housing prices.
+
+TO ADD: Our findings!!!
 
 # Introduction
 
-```{=html}
-<!-- Introduce the problem, explain its importance, state the research question,
-describe the dataset, and define the response variable. -->
-```
+Housing prices are an important economic issue globally, and especially in California where housing costs can range drastically depending on location and other factors. Understanding what influences house prices can help buyers, sellers, and policymakers make more informed decisions. Factors such as household income, housing characteristics, and location may all play a role in determining property values. Previous research has found that household income, and geographic location amongst other things are important factors associated with housing values (Landvoigt et al., 2015). For example, Conroy and Milosch (2011) found that proximity to the coast is associated with higher residential property prices in San Diego County, California.
+
+In this project, our aim is to investigate how median household income, bedrooms per household (found through data processing), and ocean proximity are related to housing prices in California. Our research question is: Given these three variables, how well can we predict median house values across California regions?
+
+We use the California Housing dataset, published on Kaggle by Cam Nugent and based on data from the 1990 California census. Each row represents a census block group and includes information about housing and demographic characteristics. Our target variable is median_house_value, which represents the median house value for each area. The three explanatory variables used in our analysis are median_income, total_bedrooms (which we divide by households to achieve an estimate of bedrooms_per_household), and ocean_proximity. The dataset was originally featured in Aurélien Géron's Hands-On Machine Learning with Scikit-Learn and TensorFlow and is downloaded directly from the author's [GitHub repository for reproducibility](https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv).
 
 # Methods
 
-## Data
+## Data Source
 
-Data Source
-
-The California Housing dataset was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables.
+As aforementioned, the California Housing dataset was originally obtained from Kaggle, uploaded by Cam Nugent under the title California Housing Prices. The dataset contains information from the 1990 California census and includes 20,640 observations and 10 variables - 5 of which we retain in order to answer our research question.
 
 According to the Kaggle dataset description, the data was in Aurélien Géron's book Hands-On Machine Learning with Scikit-Learn and TensorFlow. Géron's version is a modified version of the original California Housing dataset.
 
@@ -77,7 +74,7 @@ These functions allowed us to examine the first rows of the dataset, its dimensi
 housing.isnull().sum()
 ```
 
-This function allowed us to identify the missing observations. Thanks to this function, we found 207 missing values in `total_bedrooms`.
+This function allowed us to identify the missing observations. Thanks to this function, we found 207 missing values in `total_bedrooms`. However, we retain the missing values in order to not leak data in the preprocessing stages.
 
 ### 4. Check duplicate observations
 
@@ -271,4 +268,8 @@ Figure 4 shows that inland districts have much lower median house values than di
 
 # References
 
-<!-- Include at least four credible references cited throughout the report. -->
+Conroy, S.J., Milosch, J.L. An Estimation of the Coastal Premium for Residential Housing Prices in San Diego County. *J Real Estate Finan Econ* **42**, 211–228 (2011). [Link](https://doi.org/10.1007/s11146-009-9195-x)
+
+Géron, Aurélien. 2019. Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow. 2nd ed. O'Reilly Media. [GitHub Data Link](https://raw.githubusercontent.com/ageron/handson-ml2/master/datasets/housing/housing.csv)
+
+Landvoigt, Tim, Monika Piazzesi, and Martin Schneider. 2015. "The Housing Market(s) of San Diego." NATIONAL BUREAU OF ECONOMIC RESEARCH. [Link](https://www.nber.org/system/files/working_papers/w17723/w17723.pdf)
