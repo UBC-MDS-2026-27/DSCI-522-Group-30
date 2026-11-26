@@ -7,7 +7,7 @@ services:
     # CHANGE THIS LINE once: your Docker Hub username / your GitHub repository's
     # name in lowercase, with the sha- tag your workflow pushed (not latest).
     # After that, the workflow updates the tag for you.
-    image: lisegong/dsci-522-group-30-california-housing-prediction:sha-d17a0cf
+    image: lisegong/dsci-522-group-30-california-housing-prediction:sha-cd31408
     ports:
       # 2222 on your computer, 22 (ssh) in the container
       - "2222:22"
