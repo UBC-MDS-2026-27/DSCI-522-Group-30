@@ -125,7 +125,7 @@ Windows: `Ctrl+Shift+P`
 
 - Enter `root@localhost:2222`.
 
-- Choose `Linux` if Positron asks for the remote platform. If Positron asks whether you trust the host fingerprint, select `Continue`.
+- Choose `Linux` if Positron asks for the remote platform. If Positron asks whether you trust the host fingerprint, select `Yes` or `continue`.
 
 - Open the `/workspace` folder.
 
@@ -180,6 +180,8 @@ If port 2222 is already in use, contact the project maintainers before changing 
     ```bash
     uv add package-name==version
     ```
+    
+    
 
 3. **Commit the updated environment files and push the branch:**
 
@@ -189,12 +191,23 @@ If port 2222 is already in use, contact the project maintainers before changing 
     git push -u origin add-package-name
     ```
     
-4. **Open a pull request and wait for it to be reviewed and merged.**
+4. **Wait for the new image, then update your branch.**
+
+Pushing the branch makes GitHub Actions build and publish a new Docker image and commit its tag to `docker-compose.yml` on your branch. Once the run in the Actions tab shows a green check, run this on your computer:
+
+    ``bash
+    git pull
+    docker compose pull
+    ```
+    
+Do not edit the SHA tag in `docker-compose.yml` manually.
+
+5. **Open a pull request and wait for it to be reviewed and merged.**
 
 Open a pull request using the workflow described in the “Submitting your work” section. Wait for review and merge before updating your local `main` branch.
-After the pull request is merged, GitHub Actions will build and publish a new Docker image and update the image tag in `docker-compose.yml`. Do not edit the SHA tag manually.
+After the pull request is merged, GitHub Actions will again build and publish a new Docker image and update the image tag in `docker-compose.yml`. Do not edit the SHA tag manually.
 
-5. **Update your local copy:**
+6. **Update your local copy:**
 
     ```bash
     git switch main
