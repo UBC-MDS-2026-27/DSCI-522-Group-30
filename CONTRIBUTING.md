@@ -180,8 +180,6 @@ If port 2222 is already in use, contact the project maintainers before changing 
     ```bash
     uv add package-name==version
     ```
-    
-    
 
 3. **Commit the updated environment files and push the branch:**
 
