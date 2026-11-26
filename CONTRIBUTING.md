@@ -193,10 +193,10 @@ If port 2222 is already in use, contact the project maintainers before changing 
 
 Pushing the branch makes GitHub Actions build and publish a new Docker image and commit its tag to `docker-compose.yml` on your branch. Once the run in the Actions tab shows a green check, run this on your computer:
 
-    ``bash
-    git pull
-    docker compose pull
-    ```
+  ```bash
+  git pull
+  docker compose pull
+  ```
     
 Do not edit the SHA tag in `docker-compose.yml` manually.
 
