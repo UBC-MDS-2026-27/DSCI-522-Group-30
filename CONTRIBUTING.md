@@ -14,7 +14,7 @@ All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md
 
 ### Reporting a bug
 
-If something does not work (for example, the environment does not install, the analysis does not render, or a figure looks wrong), please open an issue and include:
+If something does not work (for example, the Docker container does not start, the analysis does not render, or a figure looks wrong), please open an issue and include:
 
 - a short, descriptive title
 - the steps you followed, starting from cloning the repository
@@ -30,7 +30,7 @@ We use the GitHub flow workflow. No one pushes directly to `main`.
 
 1.  **Open or claim an issue.** Every change should be linked to an issue. Assign the issue to yourself so others know you are working on it.
 
-2.  **Set up the environment.** Follow the instructions in the [README](README.md) to install the project dependencies.
+2.  **Set up the environment.** Follow the instructions in the [README](README.md) for the initial SSH-key and Docker setup. Do not install the project dependencies in a local `.venv`.
 
 3.  **Create a branch from the latest `main`.** Use a short, descriptive name, such as `add-eda-plot` (not `branch1` or your name):
 
@@ -40,37 +40,215 @@ We use the GitHub flow workflow. No one pushes directly to `main`.
     git switch -c add-eda-plot
     ```
 
-    Team members create branches directly in this repository. External contributors should fork the repository first.
+Team members create branches directly in this repository. External contributors should fork the repository first.
 
 4.  **Make your changes and commit often.** Keep each branch focused on one piece of work. Commit only the files you changed (`git add <file>`), not rendered HTML or unrelated files. Write commit messages that describe what changed, for example:
 
     - Good: `Add histogram of median house value to EDA`
     - Not helpful: `update`, `fix stuff`
 
-5.  **Render the report before pushing.** Run `uv run quarto render analysis/california-housing-prediction.qmd` and commit any data files it regenerates, so that committed outputs always match what the code produces.
+5.  **Render the report inside the Docker container before pushing.** 
 
-6.  **Push your branch and open a pull request.**
-
-    ``` bash
-    git push -u origin add-eda-plot
+    ```bash
+    docker compose run --rm analysis-env uv run quarto render analysis/california-housing-prediction.qmd
     ```
 
-    In the pull request description, briefly explain what you changed, why, and how to test it. Include `Closes #<issue number>` so the issue closes automatically when the pull request is merged. This only works in the description, not in a comment.
+Check that the report renders successfully. Commit only the files required for your change and do not add unnecessary generated files.
+
+6. **Open a pull request and wait for it to be reviewed and merged.**
+
+In the pull request description, briefly explain what you changed, why, and how to test it. Include `Closes #<issue number>` so the issue closes automatically when the pull request is merged. This only works in the description, not in a comment.
 
 7.  **Request a review.** At least one other team member must review and approve every pull request before it is merged. Within the team, we follow a review rotation, which we update each milestone.
 
 8.  **Respond to feedback.** If the reviewer requests changes, commit the fixes to the same branch. The pull request will update automatically.
 
-9.  **Merge.** Once the pull request is approved, **the author merges it** into `main` and deletes the branch. If `main` has changed since you branched, merge `main` into your branch and re-render before merging. Everyone then runs `git pull` on `main` before starting new work.
+9.  **Merge.** Once the pull request is approved, **the author merges it** into `main` and deletes the branch. If `main` has changed since you branched, merge `main` into your branch and re-render before merging.
 
+10. **After the pull request is merged, update your local copy:**
+
+    ```bash
+    git switch main
+    git pull
+    docker compose pull
+    ```
+    
 Issues are closed when their work is merged into `main`, not when the code is written.
+   
+## Working in the container with Positron
+
+1. **Install [Positron](https://positron.posit.co/download.html) and check Git configuration before starting.**
+
+Positron includes the Remote SSH feature, so no additional extension is required.
+Follow the setup instructions in the [README](README.md), then start the container:
+
+Check that Git knows your identity on your computer:
+
+  ```bash
+  git config --global user.name
+  git config --global user.email
+  ```
+
+The email should match the email associated with your GitHub account. If either value is missing, set them with:
+
+  ```bash
+  git config --global user.name "Your Name"
+  git config --global user.email "you@example.com"
+  ```
+    
+Each time you work on the project:
+
+2. **In a terminal, from the project directory, start the container:**
+
+    ```bash
+    docker compose up -d
+    ```
+    
+3. **Check that the container is running:**
+
+    ```bash
+    docker compose ps
+    ```
+    
+The service should be listed as `analysis-env`.
+    
+4. **In Positron:** 
+
+- Open the Command Palette.
+
+Mac: `Cmd+Shift+P`
+Windows: `Ctrl+Shift+P`
+
+- Select `Remote SSH: Show Remote Menu`.
+
+- Select `Connect to Host`.
+
+- Enter `root@localhost:2222`.
+
+- Choose `Linux` if Positron asks for the remote platform. If Positron asks whether you trust the host fingerprint, select `Yes` or `continue`.
+
+- Open the `/workspace` folder.
+
+Select `/opt/venv/bin/python` as the Python interpreter. Do not select the local `.venv` interpreter because it belongs to the host computer and may not contain the container’s packages.
+
+- To verify the interpreter, run this in the Python console:
+
+    ```python
+    import sys
+    print(sys.executable)
+    ```
+    
+It should print: `/opt/venv/bin/python`
+The terminal, Python console, and Quarto Render button now run inside the container.
+    
+5. **When you finish working, close Positron and stop the container from your computer’s terminal:**
+
+    ```bash
+    docker compose down
+    ```
+    
+## Troubleshooting Positron connections
+
+1. **If you see REMOTE HOST IDENTIFICATION HAS CHANGED, run this on your computer’s terminal:**
+
+    ```bash
+    ssh-keygen -R "[localhost]:2222"
+    ```
+    
+If Positron asks for an SSH password, confirm that an SSH key exists as described in the [README](README.md), then restart the container and try connecting again.
+If port 2222 is already in use, contact the project maintainers before changing the port in `docker-compose.yml`, because the Positron connection command must use the same port.
+  
+2. **Then restart the container and reconnect.**
+
+    ```bash
+    docker compose down
+    docker compose up -d
+    ```
+      
+## Adding or updating a package
+
+1. **Create a branch before changing the project environment:**
+
+    ```bash
+    git switch main
+    git pull
+    git switch -c add-package-name
+    ```
+    
+2. **Inside the container, add the package with an exact version:**
+
+    ```bash
+    uv add package-name==version
+    ```
+
+3. **Commit the updated environment files and push the branch:**
+
+    ```bash
+    git add pyproject.toml uv.lock
+    git commit -m "Add package-name dependency"
+    git push -u origin add-package-name
+    ```
+    
+4. **Wait for the new image, then update your branch.**
+
+Pushing the branch makes GitHub Actions build and publish a new Docker image and commit its tag to `docker-compose.yml` on your branch. Once the run in the Actions tab shows a green check, run this on your computer:
+
+  ```bash
+  git pull
+  docker compose pull
+  ```
+    
+Do not edit the SHA tag in `docker-compose.yml` manually.
+
+5. **Open a pull request and wait for it to be reviewed and merged.**
+
+Open a pull request using the workflow described in the “Submitting your work” section. Wait for review and merge before updating your local `main` branch.
+After the pull request is merged, GitHub Actions will again build and publish a new Docker image and update the image tag in `docker-compose.yml`. Do not edit the SHA tag manually.
+
+6. **Update your local copy:**
+
+    ```bash
+    git switch main
+    git pull
+    docker compose pull
+    ```
+    
+## Publishing the report
+
+1. **Before rendering, confirm that the Quarto YAML header includes:**
+
+    ```yaml
+    embed-resources: true
+    ```
+
+2. **Render the report inside the container using the command in step 5 of the “Submitting your work” section.**
+
+3. **After rendering the report inside the container, copy it to the GitHub Pages directory:**
+
+    ```bash
+    cp analysis/california-housing-prediction.html docs/index.html
+    touch docs/.nojekyll
+    ```
+
+4. **Commit and push the published report through a pull request:**
+
+    ```bash
+    git add docs/index.html docs/.nojekyll
+    git commit -m "Update published report"
+    git push
+    ```
+    
+Open a pull request and wait for it to be reviewed and merged.   
+After the pull request is merged, the report is published from the `main` branch using the `/docs` folder.
+
+The published report is available at the [GitHub Pages](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30-California-Housing-Prediction/).
 
 ## Reviewing a pull request
 
 When reviewing, please:
 
 - check that the change does what the linked issue describes
-- check out the branch, run `uv sync`, delete the processed data files and render the report. Then run `git status`: committed data files should be unchanged, which confirms the change is reproducible
+- check out the branch, follow the [README](README.md) for the Docker setup, and render the report inside the container. Confirm that the report renders successfully and that no conflict markers, broken links, unnecessary generated files, or secrets were added
 - leave specific, constructive comments (e.g. "This link is broken, could you update it?")
 - use **Review changes** to approve only when you are satisfied, or request changes if something needs fixing
 
