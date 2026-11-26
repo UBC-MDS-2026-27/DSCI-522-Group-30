@@ -20,45 +20,70 @@ For reproducibility, the dataset is downloaded programmatically from Géron's Ha
 
 ## How to Run the Analysis
 
-### Setup
+### Prerequisites
 
-1. Clone this repository:
+Install Docker Desktop and make sure it is running. An internet connection is required to download the Docker image and dataset.
 
-```bash
-git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction.git
-```
+### Run the analysis
 
-2. Navigate into the project directory:
+1. Clone the repository and enter the project folder:
 
-```bash
-cd DSCI-522-Group-30-California-Housing-Prediction
-```
+   ```bash
+   git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction.git
+   cd DSCI-522-Group-30-California-Housing-Prediction
+   ```
 
-3. Install the project dependencies:
+2. Pull the project image and start the container:
 
-```bash
-uv sync
-```
+   ```bash
+   docker compose pull
+   docker compose up -d
+   docker compose ps
+   ```
 
-4. Ensure Quarto is installed and render the analysis:
+The running service should appear as `analysis-env`.
 
-```bash
-uv run quarto render analysis/california-housing-prediction.qmd
-```
+3. Connect to the container through Positron. Select Remote: Show Remote Menu, choose Connect to Host, and enter:
 
-Rendering runs the full analysis from scratch: it downloads the raw data from Géron's GitHub repository (so you need an internet connection) and overwrites the files in `data/raw/` and `data/processed/`. The rendered report is written to `analysis/california-housing-prediction.html`.
+   `root@localhost:2222`
+
+Choose Linux and open the project folder:
+
+   `/workspace`
+
+4. In Positron, select `/opt/venv/bin/python` as the Python interpreter.
+
+(This uses the Python environment inside the container, where all project dependencies are installed. Do not select the local `.venv` interpreter because it belongs to your computer and may not contain the required packages.)
+
+5. Render the report from the container terminal:
+
+   ```bash
+   QUARTO_PYTHON=/opt/venv/bin/python quarto render analysis/california-housing-prediction.qmd
+   ```
+
+Rendering runs the analysis inside the Docker container. It downloads the raw data from Géron's GitHub repository, so an internet connection is required, and writes the raw and processed datasets to `data/raw/` and `data/processed/`. The rendered HTML report is created at `analysis/california-housing-prediction.html`; the published copy is stored at `docs/index.html`.
+
+6. Shut down the container after completing the analysis to release system resources:
+
+   ```bash
+   docker compose down
+   ```
+
+### Troubleshooting SSH
+
+If you see `REMOTE HOST IDENTIFICATION HAS CHANGED`, run:
+
+   ```bash
+   ssh-keygen -R "[localhost]:2222"
+   ```
+
+Then reconnect through Positron.
 
 ## Dependencies
 
-Project dependencies are managed through pyproject.toml and uv.lock.
+Project dependencies are installed inside the Docker image using pyproject.toml and uv.lock. Users do not need to create a local .venv or install the Python packages manually.
 
-### Required software:
-
-- Python (version 3.14 or higher)
-- uv (version: 0.12.7)
-- Quarto (version: 1.10.18)
-
-Python package dependencies are listed in pyproject.toml, with exact versions recorded in uv.lock.
+The Docker image is available on [Docker Hub](https://hub.docker.com/r/lisegong/dsci-522-group-30-california-housing-prediction).
 
 ## AI Use Statement
 
@@ -69,10 +94,12 @@ Example prompts we used:
 - "Why does `uv sync` fail with 'Expected a Python module'?"
 - "How do I review a pull request and check that the analysis is reproducible?"
 - "How do I add a figure caption in Quarto?"
+- "Why is Quarto using the host machine's `.venv` instead of the Python environment inside the Docker container, and how can I force it to use `/opt/venv/bin/python`?"
+- "SSH public-key authentication fails when connecting to a Docker container from Windows, even though the key matches `authorized_keys`. Could Docker-mounted file permissions and `sshd`'s `StrictModes` setting cause the problem? What diagnostic test could confirm the cause, and what would be a secure permanent fix?"
 
 ## Report
 
-The rendered report can be found [here](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30-California-Housing-Prediction/analysis/california-housing-prediction.html) (HTML), or as a [PDF](analysis/california-housing-prediction.pdf).
+The rendered report is available on [GitHub Pages](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30-California-Housing-Prediction/).
 
 ## License
 The project report is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
