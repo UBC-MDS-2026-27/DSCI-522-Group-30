@@ -20,45 +20,56 @@ For reproducibility, the dataset is downloaded programmatically from Géron's Ha
 
 ## How to Run the Analysis
 
-### Setup
+### Prerequisites
 
-1. Clone this repository:
+1. Install Docker Desktop and make sure it is running. An internet connection is required to download the Docker image and dataset.
 
-```bash
-git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction.git
-```
+2. If you do not already have an SSH key, create one before starting Docker:
 
-2. Navigate into the project directory:
+   ```bash
+   ssh-keygen -t ed25519
+   ```
 
-```bash
-cd DSCI-522-Group-30-California-Housing-Prediction
-```
+Press Enter at every prompt. Without a valid SSH key, Docker may create a folder named `~/.ssh/id_ed25519.pub`, and connecting to the container may fail. If this happens, delete the folder and run the command again.
 
-3. Install the project dependencies:
+### Run the analysis
 
-```bash
-uv sync
-```
+1. Clone the repository and enter the project folder:
 
-4. Ensure Quarto is installed and render the analysis:
+   ```bash
+   git clone https://github.com/UBC-MDS-2026-27/DSCI-522-Group-30-California-Housing-Prediction.git
+   cd DSCI-522-Group-30-California-Housing-Prediction
+   ```
 
-```bash
-uv run quarto render analysis/california-housing-prediction.qmd
-```
+2. Download the project image:
 
-Rendering runs the full analysis from scratch: it downloads the raw data from Géron's GitHub repository (so you need an internet connection) and overwrites the files in `data/raw/` and `data/processed/`. The rendered report is written to `analysis/california-housing-prediction.html`.
+   ```bash
+   docker compose pull
+   ```
+
+3. Render the report from your terminal in the project directory:
+
+   ```bash
+   docker compose run --rm analysis-env uv run quarto render analysis/california-housing-prediction.qmd
+   ```
+
+The `--rm` option automatically removes the temporary container after rendering finishes.
+
+Rendering runs the analysis inside the Docker container. It downloads the raw data from Géron's GitHub repository, so an internet connection is required, and writes the raw and processed datasets to `data/raw/` and `data/processed/`. The rendered HTML report is created at `analysis/california-housing-prediction.html`; the published copy is stored at `docs/index.html`.
+
+## Report
+
+The rendered report is available on [GitHub Pages](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30-California-Housing-Prediction/).
+
+## Contributing
+
+If you want to change the analysis or contribute to the project, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Dependencies
 
-Project dependencies are managed through pyproject.toml and uv.lock.
+Project dependencies are installed inside the Docker image using `pyproject.toml` and `uv.lock`. Users do not need to create a local `.venv` or install the Python packages manually.
 
-### Required software:
-
-- Python (version 3.14 or higher)
-- uv (version: 0.12.7)
-- Quarto (version: 1.10.18)
-
-Python package dependencies are listed in pyproject.toml, with exact versions recorded in uv.lock.
+The Docker image is available on [Docker Hub](https://hub.docker.com/r/lisegong/dsci-522-group-30-california-housing-prediction).
 
 ## AI Use Statement
 
@@ -69,10 +80,8 @@ Example prompts we used:
 - "Why does `uv sync` fail with 'Expected a Python module'?"
 - "How do I review a pull request and check that the analysis is reproducible?"
 - "How do I add a figure caption in Quarto?"
-
-## Report
-
-The rendered report can be found [here](https://ubc-mds-2026-27.github.io/DSCI-522-Group-30-California-Housing-Prediction/analysis/california-housing-prediction.html) (HTML), or as a [PDF](analysis/california-housing-prediction.pdf).
+- "Why is Quarto using the host machine's `.venv` instead of the Python environment inside the Docker container, and how can I force it to use `/opt/venv/bin/python`?"
+- "SSH public-key authentication fails when connecting to a Docker container from Windows, even though the key matches `authorized_keys`. Could Docker-mounted file permissions and `sshd`'s `StrictModes` setting cause the problem? What diagnostic test could confirm the cause, and what would be a secure permanent fix?"
 
 ## License
 The project report is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International ([CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)) license.
